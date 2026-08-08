@@ -42,6 +42,24 @@ assert.deepEqual(Array.from(charged,item=>item.totalPrice),[95,48,124,48,159,65,
 assert.equal(charged.reduce((sum,item)=>sum+item.totalPrice,0),1417);assert.equal(real.total,1417);
 assert.equal(charged.find(i=>i.description==='Coke Zero 300m').quantity,4);assert.equal(charged.find(i=>i.description==='Coke Zero 300m').unitPrice,31);
 assert.equal(charged[0].description,'Fokof Spec');assert.equal(charged[0].quantity,1);assert.equal(real.items.filter(i=>i.noCharge).length,6);
-const ambiguous=parseReceipt('SHOP\nCoffee 1 30.00 30.00\nUnreadable special item\nTOTAL 50.00');assert.equal(ambiguous.items.length,2);assert.equal(ambiguous.items[1].uncertain,true);assert.equal(ambiguous.items[1].noCharge,true);
+const ambiguous=parseReceipt('SHOP\nCoffee 1 30.00 30.00\nUnreadable special item\nTOTAL 50.00');assert.equal(ambiguous.items.length,2);assert.equal(ambiguous.items[1].uncertain,true);assert.equal(ambiguous.items[1].noCharge,false);assert.equal(ambiguous.items[1].excluded,true);
+const sectioned=parseReceipt(`RESTAURANT
+ITEM QTY PRICE VALUE
+Coke Zero 300m 4 31.00 124.00
+300g Sirloin 1 210.00 210.00
+Southern Fried 1 149.00 149.00
+Bill Total 483.00
+VAT 63.00
+Tendered 500.00
+Change 17.00`);
+assert.deepEqual(Array.from(sectioned.items,i=>i.description),['Coke Zero 300m','300g Sirloin','Southern Fried']);assert.equal(sectioned.items.reduce((sum,i)=>sum+context.api.itemTotal(i),0),483);assert.ok(sectioned.stats.excludedSummary>=4);
+const chargedDuplicate={id:'charged',description:'Coke Zero 300m',quantity:4,unitPrice:31,totalPrice:124,noCharge:false,excluded:false,uncertain:false,sourceY:.4,confidence:92,allocations:[]};
+const uncertainDuplicate={id:'uncertain',description:'Coke Zero 300m fragment',quantity:1,unitPrice:0,totalPrice:0,noCharge:false,excluded:true,uncertain:true,sourceY:.402,confidence:40,allocations:[]};
+const sirloinCharged={...chargedDuplicate,id:'sirloin-good',description:'300g Sirloin',quantity:1,unitPrice:210,totalPrice:210,sourceY:.6};
+const sirloinNoCharge={...sirloinCharged,id:'sirloin-bad',noCharge:true,uncertain:true,confidence:20};
+const southern={...chargedDuplicate,id:'southern-1',description:'Southern Fried',quantity:1,unitPrice:149,totalPrice:149,sourceY:.7};
+const southernFragment={...uncertainDuplicate,id:'southern-2',description:'Southern Fried 149 0 AQ Ar',sourceY:.702};
+const deduped=mergeOcrResults({items:[chargedDuplicate,sirloinNoCharge,southernFragment]},{items:[uncertainDuplicate,sirloinCharged,southern]});
+assert.equal(deduped.items.length,3);assert.equal(deduped.items.find(i=>i.description==='Coke Zero 300m').noCharge,false);assert.equal(deduped.items.find(i=>i.description==='300g Sirloin').noCharge,false);assert.equal(deduped.items.filter(i=>i.description.startsWith('Southern Fried')).length,1);assert.equal(deduped.items.find(i=>i.description.startsWith('Southern Fried')).totalPrice,149);
 assert.throws(()=>normalize(null));const safe=normalize({...b,participants:[],items:[{description:'x',quantity:-2,unitPrice:'bad'}]});assert.equal(safe.participants.length,1);assert.equal(safe.items[0].quantity,1);
 console.log('All model, sample, allocation, shared-item, tip, reconciliation, parser, and import validation tests passed.');
