@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f3ea"><meta name="description" content="Private, local restaurant bill splitting.">
+  <title>Split Simple</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><a class="brand" href="#home" aria-label="Split Simple home"><span class="mark">S</span> Split Simple</a><button class="ghost small" id="historyBtn">Saved bills</button></header>
+<main>
+  <section id="home" class="screen active">
+    <div class="hero"><span class="eyebrow">PRIVATE BILL SPLITTING</span><h1>Take a photo.<br>Split the bill. Done.</h1><p>Your receipt stays on your device. No account, no tracking, no upload.</p></div>
+    <div class="card action-card"><button class="primary big" id="cameraBtn">📷 Take a photo</button><button class="secondary big" id="uploadBtn">↑ Upload receipt</button><input id="cameraInput" type="file" accept="image/*" capture="environment" hidden><input id="fileInput" type="file" accept="image/*" hidden><div class="or"><span>or</span></div><button class="ghost wide" id="sampleBtn">Try the sample bill</button></div>
+    <div class="privacy"><span>🔒</span><div><strong>Private by design</strong><p>Everything happens in this browser. We never receive your receipts or bill data.</p></div></div>
+  </section>
+
+  <section id="receipt" class="screen"><div class="step"><span>1 of 3</span><b>Check receipt</b></div>
+    <div id="ocrState" class="card processing hidden"><div class="spinner"></div><h2>Reading your receipt…</h2><p id="ocrProgress">Preparing local OCR</p><progress id="ocrBar" max="100" value="0"></progress><small>This can take a minute. Nothing leaves your device.</small></div>
+    <div id="receiptEditor"><div id="imagePanel" class="card image-panel hidden"><img id="receiptImage" alt="Receipt preview"><div><button class="ghost small" id="replaceBtn">Replace</button><button class="danger-link" id="removeImageBtn">Remove</button></div></div>
+      <div class="card form-grid"><label>Restaurant<input id="merchant" placeholder="Restaurant name"></label><label>Date<input id="billDate" type="datetime-local"></label><label>Currency<select id="currency"><option value="ZAR">ZAR (R)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></select></label><label>Receipt total<input id="receiptTotal" type="number" min="0" step="0.01" inputmode="decimal"></label></div>
+      <div class="section-title"><div><span class="eyebrow">DETECTED ITEMS</span><h2>Check the details</h2></div><button class="secondary small" id="addItemBtn">+ Add item</button></div><div id="items"></div>
+      <div class="card reconcile" id="reconcile"></div><button class="primary sticky-next" id="toPeopleBtn">Continue</button>
+    </div>
+  </section>
+
+  <section id="people" class="screen"><div class="step"><span>2 of 3</span><b>Who's splitting?</b></div><h1>Add everyone at the table</h1><p>Names are just local labels. Add as many as you need.</p><div id="participants" class="people-list"></div><button class="secondary wide" id="addPersonBtn">+ Add person</button><div class="nav-pair"><button class="ghost" data-back="receipt">Back</button><button class="primary" id="toSplitBtn">Split the bill</button></div></section>
+
+  <section id="split" class="screen"><div class="step"><span>3 of 3</span><b>Allocate & finish</b></div><div class="section-title"><div><h1>Who had what?</h1><p>Tap names to share an item equally.</p></div><button class="secondary small" id="allToEveryone">All to everyone</button></div><div id="allocationItems"></div><div class="card live-totals"><span class="eyebrow">RUNNING TOTALS</span><div id="runningTotals"></div></div><div class="nav-pair"><button class="ghost" data-back="people">Back</button><button class="primary" id="toResultBtn">See the split</button></div></section>
+
+  <section id="result" class="screen"><div class="result-head"><span class="success">✓ Fully split</span><h1>All settled.</h1><p id="resultTitle"></p></div><div id="resultPeople"></div>
+    <div class="card tip-card"><div class="section-title"><h2>Add a tip</h2><strong id="tipValue"></strong></div><div class="segmented" id="tipPresets"><button data-tip="0">None</button><button data-tip="10">10%</button><button data-tip="12.5">12.5%</button><button data-tip="15">15%</button></div><div class="custom-tip"><select id="tipMode"><option value="percent">Custom %</option><option value="amount">Custom amount</option></select><input id="tipInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div></div>
+    <div class="card grand" id="grandTotals"></div><div class="share-grid"><button class="primary" id="shareBtn">Share</button><button class="secondary" id="copyBtn">Copy summary</button><a class="secondary button" id="whatsappBtn" target="_blank" rel="noopener">WhatsApp</a><button class="secondary" id="saveBtn">Save bill</button><button class="ghost" id="exportJsonBtn">Export JSON</button><button class="ghost" id="exportHtmlBtn">Export interactive HTML</button></div><button class="ghost wide" data-back="split">Edit split</button>
+  </section>
+
+  <section id="history" class="screen"><div class="section-title"><div><span class="eyebrow">ON THIS DEVICE</span><h1>Saved bills</h1></div><button class="ghost small" data-back="home">Done</button></div><div id="historyList"></div><div class="card import"><h2>Bring back a bill</h2><p>Import a Split Simple JSON export.</p><button class="secondary" id="importBtn">Import JSON</button><input id="importInput" type="file" accept="application/json,.json" hidden></div></section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="confirmDialog"><form method="dialog"><h2 id="dialogTitle">Are you sure?</h2><p id="dialogText"></p><div class="nav-pair"><button value="cancel" class="ghost">Cancel</button><button value="confirm" class="danger">Delete</button></div></form></dialog>
+<script src="app.js" type="module"></script>
+</body></html>

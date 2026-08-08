@@ -1,0 +1,14 @@
+# Local receipt photographs and exports (never commit customer data)
+/receipt_sample.*
+/recipt_sample.*
+/local-receipts/
+
+# Generated OCR diagnostics may contain receipt text and personal data
+/diagnostics/
+/ocr-debug/
+*.traineddata
+
+# Common local tooling output
+node_modules/
+.DS_Store
+*.log
